@@ -47,7 +47,7 @@ uv add <package_name>
 ```
 
 ### 3. 品質管理コマンド
-本プロジェクトでは `GEMINI.md` に基づき、以下のコマンドでの品質チェックを推奨しています。
+本プロジェクトでは `AGENTS.md` に基づき、以下のコマンドでの品質チェックを推奨しています。
 
 ```bash
 # フォーマット、Lint自動修正、型チェックを一括実行
@@ -58,4 +58,4 @@ ruff format && ruff check --fix && mypy .
 
 - `.devcontainer/`: Dev Container 設定 (VS Code用)
 - `docker/`: docker関連ファイル
-- `GEMINI.md`: コーディング規約 (Google Style, Ruff設定など)
+- `AGENTS.md`: コーディング規約 (Google Style, Ruff設定など)
