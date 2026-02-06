@@ -49,6 +49,7 @@ ARG REPO_NAME
 ENV WORK_DIR=${HOME}/workspace/${REPO_NAME}
 ENV PYTHON_VERSION=3.14.2 \
     UV_PROJECT_ENVIRONMENT=${HOME}/.venv
+WORKDIR ${WORK_DIR}
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${HOME}/.local/bin:${PATH}"
