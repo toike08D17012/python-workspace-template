@@ -16,7 +16,17 @@ fi
 
 if [ -n "$NEW_GID" ] && [ "$NEW_GID" != "$OLD_GID" ]; then
     echo "🔧 Updating 'kujira' group ID to match host system..."
-    groupmod -g "$NEW_GID" kujira
+    EXISTING_GROUP_NAME="$(getent group "$NEW_GID" | cut -d: -f1 || true)"
+
+    # On macOS, GID 20 (the staff group) is commonly used and may already exist in Ubuntu environments.
+    # This fallback is prepared to avoid errors when running docker compose.
+    if [ -n "$EXISTING_GROUP_NAME" ] && [ "$EXISTING_GROUP_NAME" != "kujira" ]; then
+        echo "ℹ️ GID '$NEW_GID' already belongs to '$EXISTING_GROUP_NAME'. Reusing this group for 'kujira'."
+        usermod -g "$NEW_GID" kujira
+    else
+        groupmod -g "$NEW_GID" kujira
+    fi
+
     find / -group "$OLD_GID" -exec chown -h :"$NEW_GID" {} \; 2>/dev/null || true
     echo "✅ 'kujira' group ID updated successfully."
 fi
