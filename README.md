@@ -57,6 +57,19 @@ uv add <package_name>
 ruff format && ruff check --fix && mypy .
 ```
 
+## Docker ベースイメージの切り替え
+
+デフォルトのベースイメージは軽量な `ubuntu:24.04` です。
+GPU / 機械学習用途では、`docker/Dockerfile` の先頭を以下のように書き換えてください。
+
+```dockerfile
+# 変更前（デフォルト）
+FROM ubuntu:24.04
+
+# 変更後（ML/CUDA用）
+FROM nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
+```
+
 ## ディレクトリ構成
 
 - `.devcontainer/`: Dev Container 設定 (VS Code用)

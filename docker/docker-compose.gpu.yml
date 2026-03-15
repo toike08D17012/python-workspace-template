@@ -1,5 +1,5 @@
 services:
-  ml-env:
+  python-workspace:
     deploy:
       resources:
         reservations:

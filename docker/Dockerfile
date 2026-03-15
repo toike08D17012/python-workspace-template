@@ -1,4 +1,6 @@
-FROM nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
+FROM ubuntu:24.04
+# For ML/GPU workloads, replace the above line with:
+# FROM nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -55,11 +57,10 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${HOME}/.local/bin:${PATH}"
 
 COPY --chown=${USER_UID}:${USER_GID} pyproject.toml uv.lock README.md ./
-COPY --chown=${USER_UID}:${USER_GID} src ./src
 
 RUN uv python install ${PYTHON_VERSION} && \
     uv venv --python ${PYTHON_VERSION} ${UV_PROJECT_ENVIRONMENT} \
-    && uv sync \
+    && uv sync --frozen --no-install-project\
     && uv clean
 
 # Default command

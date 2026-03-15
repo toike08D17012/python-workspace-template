@@ -56,6 +56,19 @@ Based on `AGENTS.md`, we recommend the following command for quality checks in t
 ruff format && ruff check --fix && mypy .
 ```
 
+## Switching the Docker Base Image
+
+The default base image is the lightweight `ubuntu:24.04`.
+For GPU / machine learning workloads, replace the first line of `docker/Dockerfile` as follows:
+
+```dockerfile
+# Before (default)
+FROM ubuntu:24.04
+
+# After (ML/CUDA)
+FROM nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
+```
+
 ## Directory Structure
 
 - `.devcontainer/`: Dev Container settings (for VS Code)
