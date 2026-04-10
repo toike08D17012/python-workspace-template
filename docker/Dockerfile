@@ -25,6 +25,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
         unzip \
         procps \
         nano \
+        sudo \
         gosu \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,7 +44,9 @@ RUN userdel -r ubuntu 2>/dev/null || true \
     && groupadd --gid ${USER_GID} --non-unique ${GROUP_NAME} \
     && useradd -m --no-log-init --uid ${USER_UID} --gid ${USER_GID} --groups sudo --base-dir /home --shell /bin/bash ${USER_NAME} \
     && touch ${HOME}/.sudo_as_admin_successful \
-    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+    && printf '%s\n' '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-sudo-group-nopasswd \
+    && chmod 0440 /etc/sudoers.d/90-sudo-group-nopasswd \
+    && visudo -cf /etc/sudoers.d/90-sudo-group-nopasswd
 
 RUN mkdir -p ${WORKSPACE} \
     && chown -R ${USER_UID}:${USER_GID} ${WORKSPACE} \
