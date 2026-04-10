@@ -1445,7 +1445,6 @@ dependencies = [
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "pandas" },
-    { name = "pre-commit" },
     { name = "pyyaml" },
     { name = "tqdm" },
 ]
@@ -1454,6 +1453,7 @@ dependencies = [
 dev = [
     { name = "jupyter" },
     { name = "mypy" },
+    { name = "pre-commit" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -1464,7 +1464,6 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.4.1" },
     { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
@@ -1473,6 +1472,7 @@ requires-dist = [
 dev = [
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "mypy", specifier = ">=1.19.1" },
+    { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "ruff", specifier = ">=0.15.6" },
 ]
