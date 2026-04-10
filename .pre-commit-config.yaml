@@ -3,25 +3,25 @@ repos:
     hooks:
       - id: ruff check
         name: ruff check
-        entry: ./scripts/env/ruff-check.sh
+        entry: ./scripts/environments/ruff-check.sh
         require_serial: true
         language: system
         types_or: [python, pyi, jupyter]
       - id: ruff format
         name: ruff format
-        entry: ./scripts/env/ruff-format.sh
+        entry: ./scripts/environments/ruff-format.sh
         require_serial: true
         language: system
         types_or: [python, pyi, jupyter]
       - id: pytest
         name: pytest
-        entry: ./scripts/env/pytest.sh
+        entry: ./scripts/environments/pytest.sh
         require_serial: true
         language: system
         types_or: [python, pyi, jupyter]
       - id: mypy
         name: mypy
-        entry: ./scripts/env/mypy.sh
+        entry: ./scripts/environments/mypy.sh
         require_serial: true
         language: system
         types_or: [python, pyi, jupyter]
