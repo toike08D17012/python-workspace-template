@@ -31,8 +31,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 ENV TZ=Asia/Tokyo
 
-ARG WORKSPACE=/workspace
-
 ARG USER_UID
 ARG USER_GID
 ARG USER_NAME
@@ -48,9 +46,7 @@ RUN userdel -r ubuntu 2>/dev/null || true \
     && chmod 0440 /etc/sudoers.d/90-sudo-group-nopasswd \
     && visudo -cf /etc/sudoers.d/90-sudo-group-nopasswd
 
-RUN mkdir -p ${WORKSPACE} \
-    && chown -R ${USER_UID}:${USER_GID} ${WORKSPACE} \
-    && chown -R ${USER_UID}:${USER_GID} /home
+RUN chown -R ${USER_UID}:${USER_GID} /home
 
 USER ${USER_NAME}
 ARG REPO_NAME

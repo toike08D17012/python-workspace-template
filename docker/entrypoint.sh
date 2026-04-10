@@ -31,7 +31,7 @@ if [ -n "$NEW_GID" ] && [ "$NEW_GID" != "$OLD_GID" ]; then
     echo "✅ 'kujira' group ID updated successfully."
 fi
 
-WORKSPACE="${WORKSPACE:-${HOME}/workspace}"
+WORKSPACE="${WORK_DIR:-${HOME}/workspace}"
 if [[ -f "${WORKSPACE}/pyproject.toml" ]]; then
     echo "📦 Installing project dependencies using UV..."
     gosu kujira bash -lc "cd \"${WORKSPACE}\" && uv sync --frozen"
@@ -39,7 +39,7 @@ fi
 
 if [[ -f "${WORKSPACE}/.pre-commit-config.yaml" ]]; then
     echo "🔧 Installing pre-commit hooks..."
-    gosu kujira bash -lc "cd \"${WORKSPACE}\" && scripts/install-githooks.sh"
+    gosu kujira bash -lc "cd \"${WORKSPACE}\" && scripts/env/install-githooks.sh"
 fi
 
 exec gosu kujira "$@"
