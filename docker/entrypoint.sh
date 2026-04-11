@@ -39,7 +39,7 @@ fi
 
 if [[ -f "${WORKSPACE}/.pre-commit-config.yaml" ]]; then
     echo "🔧 Installing pre-commit hooks..."
-    gosu kujira bash -lc "cd \"${WORKSPACE}\" && scripts/env/install-githooks.sh"
+    gosu kujira bash -lc "cd \"${WORKSPACE}\" && scripts/environments/install-githooks.sh"
 fi
 
 exec gosu kujira "$@"

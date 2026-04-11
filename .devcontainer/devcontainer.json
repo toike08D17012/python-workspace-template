@@ -10,7 +10,7 @@
     "shutdownAction": "stopCompose",
     "remoteUser": "kujira",
     "updateRemoteUserUID": true,
-    "postCreateCommand": "uv sync --frozen && scripts/env/install-githooks.sh",
+    "postCreateCommand": "uv sync --frozen && scripts/environments/install-githooks.sh",
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {
             "installZsh": true,
