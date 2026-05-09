@@ -5,7 +5,7 @@
         "docker-compose.generated.yml"
     ],
     "initializeCommand": "bash .devcontainer/init-gpu.sh",
-    "service": "python-workspace",
+    "service": "app",
     "workspaceFolder": "/home/kujira/workspace/python-workspace-template",
     "shutdownAction": "stopCompose",
     "remoteUser": "kujira",

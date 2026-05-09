@@ -16,16 +16,11 @@ Dev Container、uv、Ruff、Mypyを用いたモダンな開発環境を提供し
 - `src/python_workspace_template`を`src/{repositroy_name}`に修正
 - `docker/docker-compose.yml`の以下の内容をレポジトリ名に合わせて修正
     - image名
-    - サービス名
     - volumes
     - working_dir
-- `docker/docker-compose.gpu.yml`の以下の内容をレポジトリ名に合わせて修正
-    - サービス名
-- `docker/run-docker.sh`の起動するサービス名をレポジトリ名に合わせて修正
 - `.devcontainer/devcontainer.json`の以下の内容をレポジトリ名に合わせて修正
     - name
-    - service
-    - workSpaceForder
+    - workspaceFolder
 ```
 
 ## 機能・特徴

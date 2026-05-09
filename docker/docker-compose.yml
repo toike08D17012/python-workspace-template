@@ -1,5 +1,5 @@
 services:
-  python-workspace:
+  app:
     build:
       context: ..
       dockerfile: docker/Dockerfile

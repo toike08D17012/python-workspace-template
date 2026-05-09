@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit 1
 
 if command -v nvidia-smi &> /dev/null && nvidia-smi > /dev/null 2>&1; then
     echo "🚀 NVIDIA GPU detected. Enabling GPU support..."
@@ -14,4 +14,4 @@ docker compose $COMPOSE_FILES run \
     --rm \
     -e "NEW_UID=$(id -u)" \
     -e "NEW_GID=$(id -g)" \
-    python-workspace "${@:-bash}"
+    app "${@:-bash}"

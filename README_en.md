@@ -16,15 +16,10 @@ Please update the following items accordingly:
 - Update the repository description in `README.md` and `README_en.md`.
 - In `docker/docker-compose.yml`, update the following to match the repository name:
     - Image name
-    - Service name
     - volumes
     - working_dir
-- In `docker/docker-compose.gpu.yml`, update the following to match the repository name:
-    - Service name
-- In `docker/run-docker.sh`, update the service name to be launched to match the repository name.
 - In `.devcontainer/devcontainer.json`, update the following to match the repository name:
     - name
-    - service
     - workspaceFolder
 
 ## Features
