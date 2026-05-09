@@ -5,22 +5,14 @@
 A template repository for Python project development.
 Provides a modern development environment using Dev Container, uv, Ruff, and Mypy.
 
-## Initial Setup
-Please provide the following instructions to the Coding Agent. Note: Replace [XX] with the appropriate values for your project.
+## Initial Customization
 
-Plaintext
-This repository is intended for [XX]. 
-Please update the following items accordingly:
+When using this template for a new project, update the following items first.
 
-- Delete the "First Steps" / "Inital Setup" sections from both `README.md` and `README_en.md`.
-- Update the repository description in `README.md` and `README_en.md`.
-- In `docker/docker-compose.yml`, update the following to match the repository name:
-    - Image name
-    - volumes
-    - working_dir
-- In `.devcontainer/devcontainer.json`, update the following to match the repository name:
-    - name
-    - workspaceFolder
+* Project description in `README.md` and `README_en.md`
+* Directory name `src/python_workspace_template` (for example, `src/<repository_name>`)
+* `image`, `volumes`, and `working_dir` in `docker/docker-compose.yml`
+* `name` and `workspaceFolder` in `.devcontainer/devcontainer.json`
 
 ## Features
 
@@ -49,6 +41,33 @@ Based on `AGENTS.md`, we recommend the following command for quality checks in t
 ```bash
 # Execute formatting, auto-fix linting, and type checking in one go
 ruff format && ruff check --fix && mypy .
+```
+
+### 4. Docker Execution (Automatic CPU/GPU Switching)
+
+`docker/docker-compose.yml` is now unified into a single file, and GPU settings are managed with the `gpu` profile.
+
+When you use `docker/run-docker.sh`, it checks `nvidia-smi` and switches automatically.
+
+* If NVIDIA GPU is available: runs `app-gpu` service with `--profile gpu`
+* If NVIDIA GPU is unavailable: runs `app` service
+
+```bash
+# Start default shell
+./docker/run-docker.sh
+
+# Run any command
+./docker/run-docker.sh pytest -q
+```
+
+If you want to switch manually, use the following commands.
+
+```bash
+# CPU
+docker compose run --rm app bash
+
+# GPU
+docker compose --profile gpu run --rm app-gpu bash
 ```
 
 ## Switching the Docker Base Image

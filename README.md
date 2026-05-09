@@ -5,23 +5,14 @@
 Pythonプロジェクト開発用のテンプレートリポジトリです。
 Dev Container、uv、Ruff、Mypyを用いたモダンな開発環境を提供します。
 
-## 最初にやること
-以下の指示をCoding Agentにお願いしてください
-なお、〇〇の部分は適宜置き換えてください
-```
-このレポジトリは〇〇を目的としたレポジトリです。
-以下の箇所を適切に修正してください
-- `README.md` / `README_en.md`の「最初にやること」/「Inital Setup」の章を削除
-- `README.md` / `README_en.md`のレポジトリの説明を修正
-- `src/python_workspace_template`を`src/{repositroy_name}`に修正
-- `docker/docker-compose.yml`の以下の内容をレポジトリ名に合わせて修正
-    - image名
-    - volumes
-    - working_dir
-- `.devcontainer/devcontainer.json`の以下の内容をレポジトリ名に合わせて修正
-    - name
-    - workspaceFolder
-```
+## テンプレート利用時の初期設定
+
+このテンプレートを新規プロジェクトとして使う場合は、最初に以下を更新してください。
+
+* `README.md` / `README_en.md` のプロジェクト説明
+* `src/python_workspace_template` のディレクトリ名（例: `src/<repository_name>`）
+* `docker/docker-compose.yml` の `image` / `volumes` / `working_dir`
+* `.devcontainer/devcontainer.json` の `name` / `workspaceFolder`
 
 ## 機能・特徴
 
@@ -50,6 +41,33 @@ uv add <package_name>
 ```bash
 # フォーマット、Lint自動修正、型チェックを一括実行
 ruff format && ruff check --fix && mypy .
+```
+
+### 4. Docker 実行（CPU/GPU 自動切り替え）
+
+`docker/docker-compose.yml` は 1 ファイルに統合されており、GPU 構成は `profiles`（`gpu`）で管理しています。
+
+`docker/run-docker.sh` を使うと、`nvidia-smi` の実行可否を判定して自動で切り替えます。
+
+* NVIDIA GPU が使える場合: `app-gpu` サービス（`--profile gpu`）で起動
+* NVIDIA GPU が使えない場合: `app` サービスで起動
+
+```bash
+# デフォルトシェル起動
+./docker/run-docker.sh
+
+# 任意コマンド実行
+./docker/run-docker.sh pytest -q
+```
+
+手動で切り替える場合は以下を使用してください。
+
+```bash
+# CPU
+docker compose run --rm app bash
+
+# GPU
+docker compose --profile gpu run --rm app-gpu bash
 ```
 
 ## Docker ベースイメージの切り替え
