@@ -1,4 +1,9 @@
-# Python Workspace Template
+---
+title: Python Workspace Template
+description: Modern Python development environment with Dev Container, uv, Ruff, and Mypy
+---
+
+## Python Workspace Template
 
 [Japanese Version](README.md) | English
 
@@ -16,19 +21,21 @@ When using this template for a new project, update the following items first.
 
 ## Features
 
-- **Package Management**: High-speed dependency resolution using `uv`
-- **Development Environment**: Consistent environment via Dev Container (`.devcontainer`)
-- **Static Analysis / Formatting**: High-speed Lint/Format using `ruff`
-- **Type Checking**: Static type checking using `mypy`
-- **Machine Learning Support**: Pre-configured dynamic installation for PyTorch (CPU/CUDA)
+* **Package Management**: High-speed dependency resolution using `uv`
+* **Development Environment**: Consistent environment via Dev Container (`.devcontainer`)
+* **Static Analysis / Formatting**: High-speed Lint/Format using `ruff`
+* **Type Checking**: Static type checking using `mypy`
+* **Machine Learning Support**: Pre-configured dynamic installation for PyTorch (CPU/CUDA)
 
 ## Usage
 
 ### 1. Start Dev Container
+
 Open this repository in VS Code and start the container using the recommended "Dev Containers" extension.
 `postCreateCommand` will automatically execute `uv sync` to set up the environment.
 
 ### 2. Add Dependencies
+
 Use `uv` to add packages.
 
 ```bash
@@ -36,11 +43,20 @@ uv add <package_name>
 ```
 
 ### 3. Quality Control Commands
+
 Based on `AGENTS.md`, we recommend the following command for quality checks in this project.
 
 ```bash
 # Execute formatting, auto-fix linting, and type checking in one go
-ruff format && ruff check --fix && mypy .
+ruff format && ruff check --fix && mypy && pytest
+```
+
+However, `pytest` may fail outside Docker due to missing runtime dependencies.
+Run the wrapper script below to switch between Docker and local execution automatically.
+
+```bash
+# Dynamically switch to Docker execution or local execution inside the script
+./scripts/pre-commit/pytest.sh
 ```
 
 ### 4. Docker Execution (Automatic CPU/GPU Switching)
@@ -85,6 +101,6 @@ FROM nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
 
 ## Directory Structure
 
-- `.devcontainer/`: Dev Container settings (for VS Code)
-- `docker/`: docker related files
-- `AGENTS.md`: Coding guidelines (Google Style, Ruff settings, etc.)
+* `.devcontainer/`: Dev Container settings (for VS Code)
+* `docker/`: docker related files
+* `AGENTS.md`: Coding guidelines (Google Style, Ruff settings, etc.)
