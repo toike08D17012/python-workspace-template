@@ -44,19 +44,24 @@ uv add <package_name>
 
 ### 3. Quality Control Commands
 
-Based on `AGENTS.md`, we recommend the following command for quality checks in this project.
+Based on `AGENTS.md`, we recommend running quality checks through the wrapper scripts below.
 
 ```bash
-# Execute formatting, auto-fix linting, and type checking in one go
-ruff format && ruff check --fix && mypy && pytest
+# Execute formatting, auto-fix linting, type checking, and tests in one go
+./scripts/pre-commit/ruff-format.sh && \
+./scripts/pre-commit/ruff-check.sh --fix && \
+./scripts/pre-commit/mypy.sh . && \
+./scripts/pre-commit/pytest.sh
 ```
 
-However, `pytest` may fail outside Docker due to missing runtime dependencies.
-Run the wrapper script below to switch between Docker and local execution automatically.
+These wrappers run via `./docker/run-docker.sh` internally.
+This template enforces Docker-only execution and does not use local fallback.
+
+`pytest` options can be passed through as-is.
 
 ```bash
-# Dynamically switch to Docker execution or local execution inside the script
-./scripts/pre-commit/pytest.sh
+# Example: pass additional pytest options
+./scripts/pre-commit/pytest.sh -q -k smoke
 ```
 
 ### 4. Docker Execution (Automatic CPU/GPU Switching)
@@ -76,15 +81,7 @@ When you use `docker/run-docker.sh`, it checks `nvidia-smi` and switches automat
 ./docker/run-docker.sh pytest -q
 ```
 
-If you want to switch manually, use the following commands.
-
-```bash
-# CPU
-docker compose run --rm app bash
-
-# GPU
-docker compose --profile gpu run --rm app-gpu bash
-```
+For normal use, prefer `./docker/run-docker.sh` instead of direct `docker compose run ...` commands.
 
 ## Switching the Docker Base Image
 

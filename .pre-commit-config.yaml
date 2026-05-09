@@ -18,6 +18,7 @@ repos:
         entry: ./scripts/pre-commit/pytest.sh
         require_serial: true
         language: system
+        pass_filenames: false
         types_or: [python, pyi, jupyter]
       - id: mypy
         name: mypy

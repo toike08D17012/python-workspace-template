@@ -1,24 +1,34 @@
 #!/usr/bin/env bash
+# Copyright (c) Microsoft Corporation.
+# SPDX-License-Identifier: MIT
+
 set -euo pipefail
 
-HOOK_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+main() {
+    local hook_dir
+    local return_code
 
-# Move to the project root directory
-cd "${HOOK_DIR}/../.."
+    hook_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-set +e
-if command -v docker >/dev/null 2>&1; then
-    ../docker/run-docker.sh pytest
+    # Move to the project root directory.
+    cd "${hook_dir}/../.."
+
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "ERROR: docker is required. Please install/start Docker and retry." >&2
+        exit 1
+    fi
+
+    set +e
+    ./docker/run-docker.sh pytest "$@"
     return_code=$?
-else
-    pytest
-    return_code=$?
-fi
-set -e
+    set -e
 
-if [ "${return_code}" -eq 5 ]; then
-    echo "No tests collected. Treating pytest exit code 5 as success."
-    exit 0
-fi
+    if [[ "${return_code}" -eq 5 ]]; then
+        echo "No tests collected. Treating pytest exit code 5 as success."
+        exit 0
+    fi
 
-exit "${return_code}"
+    exit "${return_code}"
+}
+
+main "$@"

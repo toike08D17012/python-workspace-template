@@ -44,18 +44,24 @@ uv add <package_name>
 
 ### 3. 品質管理コマンド
 
-本プロジェクトでは `AGENTS.md` に基づき、以下のコマンドでの品質チェックを推奨しています。
+本プロジェクトでは `AGENTS.md` に基づき、以下の wrapper スクリプト経由での品質チェックを推奨しています。
 
 ```bash
-# フォーマット、Lint自動修正、型チェックを一括実行
-ruff format && ruff check --fix && mypy && pytest
+# フォーマット、Lint自動修正、型チェック、テストを一括実行
+./scripts/pre-commit/ruff-format.sh && \
+./scripts/pre-commit/ruff-check.sh --fix && \
+./scripts/pre-commit/mypy.sh . && \
+./scripts/pre-commit/pytest.sh
 ```
 
-ただし、pytestはdocker内で実行しないと、依存関係が足りずエラーになるため、以下のようにwrapperを使って実行してください。
+各 wrapper は内部で `./docker/run-docker.sh` を使って実行されます。
+このテンプレートではローカルフォールバックを行わず、`docker` 実行を必須とします。
+
+pytest は追加オプションもそのまま渡せます。
 
 ```bash
-# shell script内部でdocker内で実行 or ローカル実行を動的に切り替え
-./scripts/pre-commit/pytest.sh
+# 例: 追加オプションつきで実行
+./scripts/pre-commit/pytest.sh -q -k smoke
 ```
 
 ### 4. Docker 実行（CPU/GPU 自動切り替え）
@@ -75,15 +81,7 @@ ruff format && ruff check --fix && mypy && pytest
 ./docker/run-docker.sh pytest -q
 ```
 
-手動で切り替える場合は以下を使用してください。
-
-```bash
-# CPU
-docker compose run --rm app bash
-
-# GPU
-docker compose --profile gpu run --rm app-gpu bash
-```
+日常運用では、`docker compose run ...` の直接実行ではなく `./docker/run-docker.sh` の利用を推奨します。
 
 ## Docker ベースイメージの切り替え
 
