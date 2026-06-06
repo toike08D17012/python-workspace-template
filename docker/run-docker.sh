@@ -38,11 +38,16 @@ main() {
     echo "No NVIDIA GPU detected. Running in CPU mode."
   fi
 
+  local -a command=("$@")
+  if ((${#command[@]} == 0)); then
+    command=(bash)
+  fi
+
   docker compose "${profile_args[@]}" run \
     --rm \
     -e "NEW_UID=$(id -u)" \
     -e "NEW_GID=$(id -g)" \
-    "${service_name}" "${@:-bash}"
+    "${service_name}" "${command[@]}"
 }
 
 main "$@"

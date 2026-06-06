@@ -4,6 +4,7 @@ repos:
       - id: ruff check
         name: ruff check
         entry: ./scripts/pre-commit/ruff-check.sh
+        args: [--fix]
         require_serial: true
         language: system
         types_or: [python, pyi, jupyter]

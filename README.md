@@ -34,6 +34,10 @@ Dev Container、uv、Ruff、Mypyを用いたモダンな開発環境を提供し
 VS Code で本リポジトリを開き、推奨される拡張機能「Dev Containers」を使用してコンテナを起動してください。
 `postCreateCommand` により、自動的に `uv sync` が実行され、環境がセットアップされます。
 
+> [!Note]
+> 同様の機能は `docker-compose`でも提供しています。
+> `docker/run-docker.sh`を実行することで、docker環境を起動できます
+
 ### 2. 依存関係の追加
 
 パッケージを追加する場合は `uv` を使用します。

@@ -86,20 +86,20 @@ mypy_path = "src"
 namespace_packages = true
 explicit_package_bases = true
 
+files = [
+    "src",
+]
+exclude = [
+    "tests/",
+    "scripts/"
+]
+
 # === Pytest Configuration ===
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[[tool.mypy.overrides]]
-module = "yfinance"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["pytest", "pytest.*"]
-ignore_missing_imports = true
 
 [build-system]
 requires = ["uv_build>=0.9.28,<0.10.0"]
