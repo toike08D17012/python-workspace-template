@@ -27,6 +27,9 @@ RUN --mount=type=cache,target=/var/cache/apt \
         nano \
         sudo \
         gosu \
+        # shell linting and formatting tools
+        shellcheck \
+        shfmt \
     && rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Asia/Tokyo
