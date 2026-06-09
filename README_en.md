@@ -14,18 +14,18 @@ Provides a modern development environment using Dev Container, uv, Ruff, and Myp
 
 When using this template for a new project, update the following items first.
 
-* Project description in `README.md` and `README_en.md`
-* Directory name `src/python_workspace_template` (for example, `src/<repository_name>`)
-* `image`, `volumes`, and `working_dir` in `docker/docker-compose.yml`
-* `name` and `workspaceFolder` in `.devcontainer/devcontainer.json`
+- Project description in `README.md` and `README_en.md`
+- Directory name `src/python_workspace_template` (for example, `src/<repository_name>`)
+- `image`, `volumes`, and `working_dir` in `docker/docker-compose.yml`
+- `name` and `workspaceFolder` in `.devcontainer/devcontainer.json`
 
 ## Features
 
-* **Package Management**: High-speed dependency resolution using `uv`
-* **Development Environment**: Consistent environment via Dev Container (`.devcontainer`)
-* **Static Analysis / Formatting**: High-speed Lint/Format using `ruff`
-* **Type Checking**: Static type checking using `mypy`
-* **Machine Learning Support**: Pre-configured dynamic installation for PyTorch (CPU/CUDA)
+- **Package Management**: High-speed dependency resolution using `uv`
+- **Development Environment**: Consistent environment via Dev Container (`.devcontainer`)
+- **Static Analysis / Formatting**: High-speed Lint/Format using `ruff`
+- **Type Checking**: Static type checking using `mypy`
+- **Machine Learning Support**: Pre-configured dynamic installation for PyTorch (CPU/CUDA)
 
 ## Usage
 
@@ -70,8 +70,8 @@ This template enforces Docker-only execution and does not use local fallback.
 
 When you use `docker/run-docker.sh`, it checks `nvidia-smi` and switches automatically.
 
-* If NVIDIA GPU is available: runs `app-gpu` service with `--profile gpu`
-* If NVIDIA GPU is unavailable: runs `app` service
+- If NVIDIA GPU is available: runs `app-gpu` service with `--profile gpu`
+- If NVIDIA GPU is unavailable: runs `app` service
 
 ```bash
 # Start default shell
@@ -98,6 +98,6 @@ FROM nvidia/cuda:13.0.2-cudnn-runtime-ubuntu24.04
 
 ## Directory Structure
 
-* `.devcontainer/`: Dev Container settings (for VS Code)
-* `docker/`: docker related files
-* `AGENTS.md`: Coding guidelines (Google Style, Ruff settings, etc.)
+- `.devcontainer/`: Dev Container settings (for VS Code)
+- `docker/`: docker related files
+- `AGENTS.md`: Coding guidelines (Google Style, Ruff settings, etc.)
