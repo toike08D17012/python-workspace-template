@@ -10,6 +10,7 @@ x-app-common: &app_common
       USER_GID: ${USER_GID:-1000}
   image: python-workspace-template:latest
   volumes:
+    - .bash_history:/home/kujira/.bash_history
     - ../:/home/kujira/workspace/python-workspace-template
   tty: true
   stdin_open: true
