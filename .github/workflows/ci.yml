@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test:
+    name: Lint, type check, and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve image names
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          github_repository_lc="${GITHUB_REPOSITORY,,}"
+          repository_name="${github_repository_lc##*/}"
+
+          echo "dev_image=ghcr.io/${github_repository_lc}:latest" >> "$GITHUB_OUTPUT"
+          echo "local_dev_image=local/${repository_name}:dev" >> "$GITHUB_OUTPUT"
+
+          echo "Development image: ghcr.io/${github_repository_lc}:latest"
+          echo "Local image: local/${repository_name}:dev"
+
+      - name: Detect environment-related changes
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+          else
+            BASE="$(git rev-list --max-parents=0 HEAD)"
+            HEAD="${{ github.sha }}"
+          fi
+
+          changed_files="$(git diff --name-only "$BASE" "$HEAD")"
+
+          echo "Changed files:"
+          echo "$changed_files"
+
+          if echo "$changed_files" | grep -E '^(Dockerfile|\.dockerignore|docker/|compose\.ya?ml|docker-compose\.ya?ml|devcontainer\.json|\.devcontainer/|pyproject\.toml|uv\.lock|requirements.*\.txt)$' > /dev/null; then
+            echo "env_related=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "env_related=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to GHCR
+        if: steps.changes.outputs.env_related == 'false'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull development image
+        if: steps.changes.outputs.env_related == 'false'
+        run: |
+          docker pull "${{ steps.image.outputs.dev_image }}"
+          docker tag "${{ steps.image.outputs.dev_image }}" "${{ steps.image.outputs.local_dev_image }}"
+
+      - name: Set up Docker Buildx
+        if: steps.changes.outputs.env_related == 'true'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build development image for this change
+        if: steps.changes.outputs.env_related == 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          load: true
+          tags: ${{ steps.image.outputs.local_dev_image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Ruff check
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            "${{ steps.image.outputs.local_dev_image }}" \
+            uv run --no-sync ruff check
+
+      - name: Ruff format check
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            "${{ steps.image.outputs.local_dev_image }}" \
+            uv run --no-sync ruff format --check
+
+      - name: Mypy
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            "${{ steps.image.outputs.local_dev_image }}" \
+            uv run --no-sync mypy
+
+      - name: Pytest
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            "${{ steps.image.outputs.local_dev_image }}" \
+            uv run --no-sync pytest
