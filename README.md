@@ -16,7 +16,6 @@ Dev Container、uv、Ruff、Mypyを用いたモダンな開発環境を提供し
 
 - `README.md` / `README_en.md` のプロジェクト説明
 - `src/python_workspace_template` のディレクトリ名（例: `src/<repository_name>`）
-- `docker/docker-compose.yml` の `image` / `volumes` / `working_dir`
 - `.devcontainer/devcontainer.json` の `name` / `workspaceFolder`
 
 ## 機能・特徴

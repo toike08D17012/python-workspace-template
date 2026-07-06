@@ -70,5 +70,6 @@ logs/
 
 # === Generated file by development pipeline
 .devcontainer/docker-compose.generated.yml
+.devcontainer/devcontainer-lock.json
 
 .bash_history

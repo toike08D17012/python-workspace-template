@@ -16,7 +16,6 @@ When using this template for a new project, update the following items first.
 
 - Project description in `README.md` and `README_en.md`
 - Directory name `src/python_workspace_template` (for example, `src/<repository_name>`)
-- `image`, `volumes`, and `working_dir` in `docker/docker-compose.yml`
 - `name` and `workspaceFolder` in `.devcontainer/devcontainer.json`
 
 ## Features
