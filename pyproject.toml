@@ -4,14 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = [
-    "matplotlib>=3.10.8",
-    "numpy>=2.4.1",
-    "opencv-python>=4.11.0.86",
-    "pandas>=2.3.3",
-    "pyyaml>=6.0.3",
-    "tqdm>=4.67.1",
-]
+dependencies = []
 
 [dependency-groups]
 dev = [
@@ -102,5 +95,5 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 
 [build-system]
-requires = ["uv_build>=0.9.28,<0.10.0"]
+requires = ["uv_build>=0.11.28,<0.12"]
 build-backend = "uv_build"
