@@ -62,36 +62,63 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          event_name="${{ github.event_name }}"
+
+          if [[ "$event_name" == "workflow_dispatch" ]]; then
             echo "Manual workflow run: building the development image"
             echo "env_related=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
-            HEAD="${{ github.event.pull_request.head.sha }}"
-            changed_files="$(git diff --name-only "${BASE}...${HEAD}")"
-          else
-            BASE="${{ github.event.before }}"
-            HEAD="${{ github.sha }}"
+          if [[ "$event_name" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
 
-            if [[ "$BASE" == "0000000000000000000000000000000000000000" ]]; then
+            echo "Comparing pull request commits:"
+            echo "  Base: $base"
+            echo "  Head: $head"
+
+            changed_files="$(git diff --name-only "${base}...${head}")"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+            forced="${{ github.event.forced }}"
+
+            echo "Comparing push commits:"
+            echo "  Base:   $base"
+            echo "  Head:   $head"
+            echo "  Forced: $forced"
+
+            if [[ "$forced" == "true" ]]; then
+              echo "Force push detected: rebuilding the development image"
+              echo "env_related=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            if [[ "$base" == "0000000000000000000000000000000000000000" ]]; then
+              echo "New branch history detected: comparing against the empty tree"
               empty_tree="$(git hash-object -t tree /dev/null)"
-              changed_files="$(git diff --name-only "$empty_tree" "$HEAD")"
+              changed_files="$(git diff --name-only "$empty_tree" "$head")"
+            elif ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+              echo "Base commit is not available locally: $base"
+              echo "Falling back to rebuilding the development image"
+              echo "env_related=true" >> "$GITHUB_OUTPUT"
+              exit 0
             else
-              changed_files="$(git diff --name-only "$BASE" "$HEAD")"
+              changed_files="$(git diff --name-only "$base" "$head")"
             fi
           fi
 
           echo "Changed files:"
-          echo "$changed_files"
+          printf '%s\n' "$changed_files"
 
-          if echo "$changed_files" \
+          if printf '%s\n' "$changed_files" \
             | grep -E '^(Dockerfile|\.dockerignore|docker/.*|compose\.ya?ml|docker-compose\.ya?ml|devcontainer\.json|\.devcontainer/.*|pyproject\.toml|uv\.lock|requirements.*\.txt)$' \
             > /dev/null; then
+            echo "Environment-related changes detected"
             echo "env_related=true" >> "$GITHUB_OUTPUT"
           else
+            echo "No environment-related changes detected"
             echo "env_related=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -135,31 +162,50 @@ jobs:
       - name: Ruff check
         run: |
           docker run --rm \
-            -v "$PWD:/home/kujira/workspace" \
-            -w /home/kujira/workspace \
+            --entrypoint "" \
+            --user root \
+            -e HOME=/tmp \
+            -e XDG_CACHE_HOME=/tmp/.cache \
+            -e RUFF_CACHE_DIR=/tmp/ruff-cache \
+            -v "$PWD:/workspace" \
+            -w /workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
-            uv run --no-sync ruff check
+            uv run --locked ruff check
 
       - name: Ruff format check
         run: |
           docker run --rm \
-            -v "$PWD:/home/kujira/workspace" \
-            -w /home/kujira/workspace \
+            --entrypoint "" \
+            --user root \
+            -e HOME=/tmp \
+            -e XDG_CACHE_HOME=/tmp/.cache \
+            -e RUFF_CACHE_DIR=/tmp/ruff-cache \
+            -v "$PWD:/workspace" \
+            -w /workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
-            uv run --no-sync ruff format --check
+            uv run --locked ruff format --check
 
       - name: Mypy
         run: |
           docker run --rm \
-            -v "$PWD:/home/kujira/workspace" \
-            -w /home/kujira/workspace \
+            --entrypoint "" \
+            --user root \
+            -e HOME=/tmp \
+            -e XDG_CACHE_HOME=/tmp/.cache \
+            -e MYPY_CACHE_DIR=/tmp/mypy-cache \
+            -v "$PWD:/workspace" \
+            -w /workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
-            uv run --no-sync mypy
+            uv run --locked mypy
 
       - name: Pytest
         run: |
           docker run --rm \
-            -v "$PWD:/home/kujira/workspace" \
-            -w /home/kujira/workspace \
+            --entrypoint "" \
+            --user root \
+            -e HOME=/tmp \
+            -e XDG_CACHE_HOME=/tmp/.cache \
+            -v "$PWD:/workspace" \
+            -w /workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
-            uv run --no-sync pytest
+            uv run --locked pytest -o cache_dir=/tmp/pytest-cache
