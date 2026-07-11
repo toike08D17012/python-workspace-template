@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Resolve image name
         id: image
@@ -41,7 +43,6 @@ jobs:
           github_repository_lc="${GITHUB_REPOSITORY,,}"
           repository_name="${github_repository_lc##*/}"
 
-          echo "GITHUB_REPOSITORY=${github_repository_lc}" >> "$GITHUB_ENV"
           echo "REPO_NAME=${repository_name}" >> "$GITHUB_ENV"
           echo "REPO_ROOT_BASENAME=${repository_name}" >> "$GITHUB_ENV"
 
@@ -60,6 +61,7 @@ jobs:
 
           image_repo="${image_name%:*}"
 
+          echo "repository_name=${repository_name}" >> "$GITHUB_OUTPUT"
           echo "image_name=${image_name}" >> "$GITHUB_OUTPUT"
           echo "sha_image=${image_repo}:sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
@@ -82,6 +84,12 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
+          build-args: |
+            REPO_NAME=${{ steps.image.outputs.repository_name }}
+            USER_NAME=kujira
+            GROUP_NAME=kujira
+            USER_UID=1000
+            USER_GID=1000
           tags: |
             ${{ steps.image.outputs.image_name }}
             ${{ steps.image.outputs.sha_image }}

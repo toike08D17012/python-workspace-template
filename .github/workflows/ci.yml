@@ -36,10 +36,24 @@ jobs:
           github_repository_lc="${GITHUB_REPOSITORY,,}"
           repository_name="${github_repository_lc##*/}"
 
-          echo "dev_image=ghcr.io/${github_repository_lc}:latest" >> "$GITHUB_OUTPUT"
+          dev_image="$(
+            GITHUB_REPOSITORY="${github_repository_lc}" \
+            REPO_NAME="${repository_name}" \
+            REPO_ROOT_BASENAME="${repository_name}" \
+            docker compose -f docker/docker-compose.yml config --format json \
+              | jq -r '.services.app.image'
+          )"
+
+          if [[ -z "$dev_image" || "$dev_image" == "null" ]]; then
+            echo "Failed to resolve services.app.image from docker/docker-compose.yml" >&2
+            exit 1
+          fi
+
+          echo "repository_name=${repository_name}" >> "$GITHUB_OUTPUT"
+          echo "dev_image=${dev_image}" >> "$GITHUB_OUTPUT"
           echo "local_dev_image=local/${repository_name}:dev" >> "$GITHUB_OUTPUT"
 
-          echo "Development image: ghcr.io/${github_repository_lc}:latest"
+          echo "Development image: ${dev_image}"
           echo "Local image: local/${repository_name}:dev"
 
       - name: Detect environment-related changes
@@ -48,23 +62,34 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual workflow run: building the development image"
+            echo "env_related=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE="${{ github.event.pull_request.base.sha }}"
             HEAD="${{ github.event.pull_request.head.sha }}"
-          elif [[ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            changed_files="$(git diff --name-only "${BASE}...${HEAD}")"
+          else
             BASE="${{ github.event.before }}"
             HEAD="${{ github.sha }}"
-          else
-            BASE="$(git rev-list --max-parents=0 HEAD)"
-            HEAD="${{ github.sha }}"
-          fi
 
-          changed_files="$(git diff --name-only "$BASE" "$HEAD")"
+            if [[ "$BASE" == "0000000000000000000000000000000000000000" ]]; then
+              empty_tree="$(git hash-object -t tree /dev/null)"
+              changed_files="$(git diff --name-only "$empty_tree" "$HEAD")"
+            else
+              changed_files="$(git diff --name-only "$BASE" "$HEAD")"
+            fi
+          fi
 
           echo "Changed files:"
           echo "$changed_files"
 
-          if echo "$changed_files" | grep -E '^(Dockerfile|\.dockerignore|docker/|compose\.ya?ml|docker-compose\.ya?ml|devcontainer\.json|\.devcontainer/|pyproject\.toml|uv\.lock|requirements.*\.txt)$' > /dev/null; then
+          if echo "$changed_files" \
+            | grep -E '^(Dockerfile|\.dockerignore|docker/.*|compose\.ya?ml|docker-compose\.ya?ml|devcontainer\.json|\.devcontainer/.*|pyproject\.toml|uv\.lock|requirements.*\.txt)$' \
+            > /dev/null; then
             echo "env_related=true" >> "$GITHUB_OUTPUT"
           else
             echo "env_related=false" >> "$GITHUB_OUTPUT"
@@ -82,7 +107,9 @@ jobs:
         if: steps.changes.outputs.env_related == 'false'
         run: |
           docker pull "${{ steps.image.outputs.dev_image }}"
-          docker tag "${{ steps.image.outputs.dev_image }}" "${{ steps.image.outputs.local_dev_image }}"
+          docker tag \
+            "${{ steps.image.outputs.dev_image }}" \
+            "${{ steps.image.outputs.local_dev_image }}"
 
       - name: Set up Docker Buildx
         if: steps.changes.outputs.env_related == 'true'
@@ -95,6 +122,12 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           load: true
+          build-args: |
+            REPO_NAME=${{ steps.image.outputs.repository_name }}
+            USER_NAME=kujira
+            GROUP_NAME=kujira
+            USER_UID=1000
+            USER_GID=1000
           tags: ${{ steps.image.outputs.local_dev_image }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -102,31 +135,31 @@ jobs:
       - name: Ruff check
         run: |
           docker run --rm \
-            -v "$PWD:/workspace" \
-            -w /workspace \
+            -v "$PWD:/home/kujira/workspace" \
+            -w /home/kujira/workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
             uv run --no-sync ruff check
 
       - name: Ruff format check
         run: |
           docker run --rm \
-            -v "$PWD:/workspace" \
-            -w /workspace \
+            -v "$PWD:/home/kujira/workspace" \
+            -w /home/kujira/workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
             uv run --no-sync ruff format --check
 
       - name: Mypy
         run: |
           docker run --rm \
-            -v "$PWD:/workspace" \
-            -w /workspace \
+            -v "$PWD:/home/kujira/workspace" \
+            -w /home/kujira/workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
             uv run --no-sync mypy
 
       - name: Pytest
         run: |
           docker run --rm \
-            -v "$PWD:/workspace" \
-            -w /workspace \
+            -v "$PWD:/home/kujira/workspace" \
+            -w /home/kujira/workspace \
             "${{ steps.image.outputs.local_dev_image }}" \
             uv run --no-sync pytest
